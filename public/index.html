@@ -12,6 +12,7 @@
 <div id="webgl1"></div>
 <div id="webgl2"></div>
 <script src="/three.min.js"></script>
+<script src="/MidpointDisplacement.js"></script>
 <script src="/TrackballControls.js"></script> 
 <script>
 
@@ -29,16 +30,17 @@
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(width, height);
 
-    var geometry = new THREE.PlaneGeometry(60, 60, 24, 24);
+    // var geometry = new THREE.PlaneGeometry(60, 60, 24, 24);
+    var geometry = (new Terrain(60, 60, 1)).getGeomerty();
 
     var material = new THREE.MeshBasicMaterial({
         color: 0x333333, 
         wireframe: true
     });
 
-    for (var i = geometry.vertices.length - 1; i >= 0; i--) {
-      geometry.vertices[i].z = Math.random() * 5;  
-    }
+    // for (var i = geometry.vertices.length - 1; i >= 0; i--) {
+    //   geometry.vertices[i].z = Math.random() * 5;  
+    // }
 
     var plane = new THREE.Mesh(geometry, material);
     
