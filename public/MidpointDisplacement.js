@@ -1,14 +1,26 @@
-var iterationsCount = 0;
+function rnd_snd() {
+    return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
+}
 
-function Matrix(width, height, _scale) {
+function rnd(mean, stdev) {
+    return Math.round(rnd_snd() * stdev + mean);
+}
+
+var random = function () {
+    return Math.random() * -2 + 1;
+};
+function Matrix(width, height, _routeness) {
     defaultValue = 0;
     this._width = width;
     this._height = height;
-    this.scale = _scale;
+    this.routeness = _routeness;
+    this.scale = 1 / Math.pow(2, _routeness),
 
     this.data = Array.apply(null, Array(width * height)).map(function() {
         return defaultValue
     });
+
+
 
     this.getData = function() {
         return this.data;
@@ -24,7 +36,7 @@ function Matrix(width, height, _scale) {
                 count ++;
             }
         }
-        return sum / count + this.scale * Math.random() * 15;
+        return sum / count + this.scale * rnd(0, 1);
     };
 
 
@@ -45,6 +57,27 @@ function Matrix(width, height, _scale) {
         }
 
         this.data[y * this._height + x] = value;
+    };
+
+    this.initCorner = function() {
+        this.set([0, 0], this.scale * rnd(0, 1));
+        this.set([0, this._height], this.scale * rnd(0, 1));
+        this.set([this._width, 0], this.scale * rnd(0, 1));
+        this.set([this._width, this._height], this.scale * rnd(0, 1));
+    };
+
+    this.normalize = function () {
+        var max = 0, min = 0;
+
+        for (var i = this.data.length - 1; i >= 0; i--) {
+            if (this.data[i] > max) max = this.data[i];
+            if (this.data[i] < min) min = this.data[i];
+        }
+        for (var i = this.data.length - 1; i >= 0; i--) {
+            this.data[i] = (this.data[i] - min) / (max - min);
+        }
+        return this.data;
+
     };
 
     this.newPoint = function(t1, t2) {
@@ -104,11 +137,11 @@ function Matrix(width, height, _scale) {
 
 
 Terrain = function(width, height, iterations) {
-    var routeness = 1,
+    var routeness = 2,
         size = Math.pow(2, iterations),
         n_vertice = size + 1,
-        scale = 1 / Math.pow(2, routeness),
-        matrix = new Matrix(n_vertice, n_vertice, scale);
+        // scale = 1 / Math.pow(2, routeness),
+        matrix = new Matrix(n_vertice, n_vertice, routeness);
         
 
     this.geometry = new THREE.PlaneGeometry(60, 60, size, size);
@@ -123,6 +156,7 @@ Terrain = function(width, height, iterations) {
     // p4 = matrix.get(size, size);
     // console.log('set:', size / 2);
     // middlePoint = matrix.set(, 3);
+    matrix.initCorner();
     p5 = matrix.newPoint([0, 0], [size, size]);
     // pn = matrix.newPoint([0, 0], p5);
     // matrix.newPoint(p5, pn);
@@ -136,15 +170,31 @@ Terrain = function(width, height, iterations) {
     // // matrix.newPoint(0, 0, size, 0, scale);
     // // matrix.newPoint(0, 0, 0, size, scale);
 
-    data = matrix.getData();
+    this.data = data = matrix.getData();
+    console.log("matrix:", data);
 
     for (var i = this.geometry.vertices.length - 1; i >= 0; i--) {
-        this.geometry.vertices[i].z += data[i];
+        this.geometry.vertices[i].z += data[i] * 10;
         // console.log("data->", data[i]);
     }
 
 
     this.getGeomerty = function() {
         return this.geometry;
+    };
+
+    this.renderHeightMap = function (canvasId) {
+        var canvas = document.getElementById(canvasId);
+        var ctx = canvas.getContext('2d');
+        matrix.normalize();
+
+        for (var i = 0; i <= size; i++) {
+           for (var j = 0; j <= size; j++) {
+               var _h = 200 / (size + 1);
+               var color = (matrix.get([i, j]) * 255).toFixed(0);
+               ctx.fillStyle='rgb(' + color + ',' + color + ',' + color + ')';
+               ctx.fillRect( _h * i, _h * j, _h, _h);
+           }
+        };
     };
 }
