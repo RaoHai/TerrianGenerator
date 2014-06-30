@@ -1,9 +1,9 @@
 function rnd_snd() {
-    return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
+    return ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3
 }
 
 function rnd(mean, stdev) {
-    return Math.round(rnd_snd() * stdev + mean);
+    return rnd_snd() * stdev + mean;
 }
 
 var random = function () {
@@ -27,16 +27,23 @@ function Matrix(width, height, _routeness) {
     };
 
     this.get_amout = function () {
-       var sum = 0, count = 0;
+       var sum = 0, count = 0, min = 0, max = 1;
         for (var i = arguments.length - 1; i >= 0; i--) {
             var value = this.get(arguments[i]);
             if (value !== null) {
-                // console.log("-->get:", arguments[i], value);
+
                 sum += value;
                 count ++;
+                if (value < min) {
+                    min = value;
+                }
+                if (value > max) {
+                    max = value;
+                }
             }
         }
-        return sum / count + this.scale * rnd(0, 1);
+
+        return sum / count + this.scale * rnd(min, max);
     };
 
 
@@ -45,12 +52,12 @@ function Matrix(width, height, _routeness) {
         if (x > this._width || y > this._height) {
             return null;
         }
-        // console.log("get:",x , y, y * this._height + x, this.data[y * this._height + x]);
+
         return this.data[y * this._height + x];
     };
 
     this.set = function(point, value) {
-        // console.log("set:", point, value);
+
         var x = point[0], y = point[1];
         if (x > this._width || y > this._height) {
             return 0;
@@ -112,11 +119,9 @@ function Matrix(width, height, _routeness) {
         p8 = [(x2 + x1) / 2, y2];
         p9 = [x2 , y2];
         
-        console.log("center:", p5);
-        // console.log("avg:",this.get_avg(p1, p3, p7, p9));
         this.set(p5, this.get_amout(p1, p2, p3, p4)) ;
 
-        this.set(p2, this.get_amout(p1, p3, p5));
+        this.set(p2, this.get_amout(p1, p3, p5)) ;
         this.set(p4, this.get_amout(p1, p5, p7));
         this.set(p6, this.get_amout(p3, p5, p9));
         this.set(p8, this.get_amout(p5, p7, p9));
@@ -125,10 +130,7 @@ function Matrix(width, height, _routeness) {
         this.newPoint(p3, p5);
         this.newPoint(p7, p5);
         this.newPoint(p9, p5);
-        // this.newPoint()
 
-        // this.
-        //this.newPoint(p5, p7);
        
     };
 
@@ -149,33 +151,16 @@ Terrain = function(width, height, iterations) {
     var p1, p2, p3, p4;
     var middlePoint, data;
 
-    //step1
-    // p1 = matrix.get(0, 0);
-    // p2 = matrix.get(size, 0);
-    // p3 = matrix.get(0, size);
-    // p4 = matrix.get(size, size);
-    // console.log('set:', size / 2);
-    // middlePoint = matrix.set(, 3);
     matrix.initCorner();
     p5 = matrix.newPoint([0, 0], [size, size]);
-    // pn = matrix.newPoint([0, 0], p5);
-    // matrix.newPoint(p5, pn);
-
-    // // matrix.newPoint(0, size, size, size, scale);
-    // // matrix.newPoint(size, 0, size, size, scale);
-    // // matrix.newPoint(0, 0, 0, size, scale);
-    // // matrix.newPoint(0, 0, size, 0, scale);
-    // // matrix.newPoint(size, 0, 0, 0, scale);
-    // // matrix.newPoint(0, size, 0, 0, scale);
-    // // matrix.newPoint(0, 0, size, 0, scale);
-    // // matrix.newPoint(0, 0, 0, size, scale);
 
     this.data = data = matrix.getData();
     console.log("matrix:", data);
 
     for (var i = this.geometry.vertices.length - 1; i >= 0; i--) {
-        this.geometry.vertices[i].z += data[i] * 10;
-        // console.log("data->", data[i]);
+        if (data[i] > -0.04) {
+            this.geometry.vertices[i].z += data[i] * 60;
+        }
     }
 
 

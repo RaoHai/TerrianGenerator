@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<title>three.js - Jotunheimen</title>
+<title> Generating Fractal Landscapes (1): Midpoint Displacement Method </title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <style>
@@ -31,8 +31,7 @@
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(width, height);
 
-    // var geometry = new THREE.PlaneGeometry(60, 60, 24, 24);
-    var terrain = new Terrain(60, 60, 1);
+    var terrain = new Terrain(60, 60, 4);
     var geometry = terrain.getGeomerty();
     var heightmap = terrain.renderHeightMap("webgl2");
 
@@ -40,10 +39,6 @@
         color: 0x333333, 
         wireframe: true
     });
-
-    // for (var i = geometry.vertices.length - 1; i >= 0; i--) {
-    //   geometry.vertices[i].z = Math.random() * 5;  
-    // }
 
     var plane = new THREE.Mesh(geometry, material);
     
